@@ -1,0 +1,1294 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Keyboard Warrior</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+
+<body>
+
+
+    <!-- =====================================================
+         HOME PAGE
+    ====================================================== -->
+
+    <main id="homePage" class="page active">
+
+        <!-- HEADER -->
+
+        <header class="site-header">
+
+            <div class="brand-mini">
+                <span>KEYBOARD</span>
+                <strong>WARRIOR</strong>
+            </div>
+
+
+            <div class="account-actions">
+
+                <button
+                    id="loginBtn"
+                    class="header-btn"
+                    type="button"
+                >
+                    Login
+                </button>
+
+                <button
+                    id="signupBtn"
+                    class="header-btn filled"
+                    type="button"
+                >
+                    Sign Up
+                </button>
+
+            </div>
+
+        </header>
+
+
+        <!-- HERO -->
+
+        <section class="home-content">
+
+            <p class="hero-kicker">
+                TYPE • COMPETE • MASTER
+            </p>
+
+
+            <div class="logo">
+
+                <span>KEYBOARD</span>
+
+                <strong>WARRIOR</strong>
+
+            </div>
+
+
+            <p class="tagline">
+                TYPE FAST. FIGHT HARDER.
+            </p>
+
+
+            <p class="home-description">
+                Test your typing speed, improve your accuracy,
+                and challenge yourself through different typing
+                modes. Multiplayer battles will let you compete
+                against other warriors in real time.
+            </p>
+
+
+            <!-- MAIN BUTTONS -->
+
+            <div class="home-buttons">
+
+                <button
+                    id="singlePlayerBtn"
+                    class="primary-btn"
+                    type="button"
+                >
+                    ⌨ Single Player
+                </button>
+
+
+                <button
+                    id="multiplayerBtn"
+                    class="secondary-btn"
+                    type="button"
+                >
+                    ⚔ Multiplayer
+                </button>
+
+            </div>
+
+
+            <!-- FEATURES -->
+
+            <div class="feature-grid">
+
+
+                <article class="feature-card">
+
+                    <div class="feature-icon">
+                        ⌨
+                    </div>
+
+                    <h3>TYPE</h3>
+
+                    <p>
+                        Practice typing with different
+                        challenges and improve your accuracy.
+                    </p>
+
+                </article>
+
+
+                <article class="feature-card">
+
+                    <div class="feature-icon">
+                        ⚡
+                    </div>
+
+                    <h3>SPEED</h3>
+
+                    <p>
+                        Track your WPM, accuracy, errors
+                        and performance in real time.
+                    </p>
+
+                </article>
+
+
+                <article class="feature-card">
+
+                    <div class="feature-icon">
+                        ⚔
+                    </div>
+
+                    <h3>COMPETE</h3>
+
+                    <p>
+                        Challenge another player and
+                        battle through typing speed.
+                    </p>
+
+                </article>
+
+
+                <article class="feature-card">
+
+                    <div class="feature-icon">
+                        🎯
+                    </div>
+
+                    <h3>MASTER</h3>
+
+                    <p>
+                        Choose words, sentences,
+                        paragraphs or quotes.
+                    </p>
+
+                </article>
+
+
+            </div>
+
+        </section>
+
+
+        <!-- FOOTER -->
+
+        <footer class="site-footer">
+
+            <span>
+                © 2026 Keyboard Warrior
+            </span>
+
+            <span>
+                Type fast. Fight harder.
+            </span>
+
+        </footer>
+
+    </main>
+
+
+
+    <!-- =====================================================
+         SINGLE PLAYER PAGE
+    ====================================================== -->
+
+    <main id="gamePage" class="page">
+
+
+        <!-- GAME HEADER -->
+
+        <header class="game-header">
+
+            <button
+                id="gameHomeBtn"
+                class="small-btn"
+                type="button"
+            >
+                ← Home
+            </button>
+
+
+            <div class="game-title">
+
+                <span>KEYBOARD</span>
+
+                <strong>WARRIOR</strong>
+
+            </div>
+
+
+            <button
+                id="restartBtn"
+                class="small-btn"
+                type="button"
+            >
+                ↻ Restart
+            </button>
+
+        </header>
+
+
+
+        <!-- MODE SETTINGS -->
+
+        <section class="mode-toolbar">
+
+
+            <!-- MODE -->
+
+            <div class="mode-group">
+
+                <span class="toolbar-label">
+                    MODE
+                </span>
+
+
+                <div
+                    id="singleModeButtons"
+                    class="segmented"
+                >
+
+                    <button
+                        class="mode-btn active"
+                        data-mode="words"
+                        type="button"
+                    >
+                        Words
+                    </button>
+
+
+                    <button
+                        class="mode-btn"
+                        data-mode="sentence"
+                        type="button"
+                    >
+                        Sentence
+                    </button>
+
+
+                    <button
+                        class="mode-btn"
+                        data-mode="paragraph"
+                        type="button"
+                    >
+                        Paragraph
+                    </button>
+
+
+                    <button
+                        class="mode-btn"
+                        data-mode="quotes"
+                        type="button"
+                    >
+                        Quotes
+                    </button>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- LENGTH -->
+
+            <div
+                id="singleLengthGroup"
+                class="mode-group"
+            >
+
+                <span class="toolbar-label">
+                    LENGTH
+                </span>
+
+
+                <div
+                    id="singleLengthButtons"
+                    class="segmented"
+                >
+
+                    <button
+                        class="length-btn"
+                        data-length="10"
+                        type="button"
+                    >
+                        10
+                    </button>
+
+
+                    <button
+                        class="length-btn active"
+                        data-length="25"
+                        type="button"
+                    >
+                        25
+                    </button>
+
+
+                    <button
+                        class="length-btn"
+                        data-length="50"
+                        type="button"
+                    >
+                        50
+                    </button>
+
+
+                    <button
+                        class="length-btn"
+                        data-length="100"
+                        type="button"
+                    >
+                        100
+                    </button>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- STATS -->
+
+        <section class="stats">
+
+
+            <div class="stat">
+
+                <span class="stat-label">
+                    WPM
+                </span>
+
+                <strong id="wpm">
+                    0
+                </strong>
+
+            </div>
+
+
+            <div class="stat">
+
+                <span class="stat-label">
+                    ACCURACY
+                </span>
+
+                <strong id="accuracy">
+                    100%
+                </strong>
+
+            </div>
+
+
+            <div class="stat">
+
+                <span class="stat-label">
+                    ERRORS
+                </span>
+
+                <strong id="errors">
+                    0
+                </strong>
+
+            </div>
+
+
+            <div class="stat">
+
+                <span class="stat-label">
+                    TIME
+                </span>
+
+                <strong id="time">
+                    0s
+                </strong>
+
+            </div>
+
+
+        </section>
+
+
+
+        <!-- TYPING AREA -->
+
+        <section
+            id="typingContainer"
+            class="typing-container"
+        >
+
+            <div
+                id="typingText"
+                class="typing-text"
+            >
+            </div>
+
+
+            <input
+                id="typingInput"
+                class="typing-input"
+                type="text"
+                autocomplete="off"
+                autocorrect="off"
+                autocapitalize="off"
+                spellcheck="false"
+            >
+
+        </section>
+
+
+        <p class="typing-hint">
+            Start typing • Backspace corrects mistakes
+        </p>
+
+
+    </main>
+
+
+
+    <!-- =====================================================
+         MULTIPLAYER LOBBY
+    ====================================================== -->
+
+    <main id="multiplayerPage" class="page">
+
+
+        <section class="lobby">
+
+
+            <button
+                id="multiplayerHomeBtn"
+                class="small-btn"
+                type="button"
+            >
+                ← Home
+            </button>
+
+
+            <div class="lobby-logo">
+
+                <div class="logo">
+
+                    <span>KEYBOARD</span>
+
+                    <strong>WARRIOR</strong>
+
+                </div>
+
+            </div>
+
+
+            <h1>
+                Multiplayer
+            </h1>
+
+
+            <p class="lobby-description">
+                Create a room or join another warrior.
+                Choose your typing challenge and battle
+                in real time.
+            </p>
+
+
+
+            <!-- CREATE ROOM -->
+
+            <section class="lobby-card">
+
+                <h2>
+                    Create Room
+                </h2>
+
+                <p>
+                    Create a private room and share the
+                    room code with your opponent.
+                </p>
+
+
+
+                <!-- MULTIPLAYER MODE -->
+
+                <div class="setting-block">
+
+                    <span class="toolbar-label">
+                        MODE
+                    </span>
+
+
+                    <div
+                        id="multiModeButtons"
+                        class="lobby-segmented"
+                    >
+
+                        <button
+                            class="mode-btn active"
+                            data-mode="words"
+                            type="button"
+                        >
+                            Words
+                        </button>
+
+
+                        <button
+                            class="mode-btn"
+                            data-mode="sentence"
+                            type="button"
+                        >
+                            Sentence
+                        </button>
+
+
+                        <button
+                            class="mode-btn"
+                            data-mode="paragraph"
+                            type="button"
+                        >
+                            Paragraph
+                        </button>
+
+
+                        <button
+                            class="mode-btn"
+                            data-mode="quotes"
+                            type="button"
+                        >
+                            Quotes
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- MULTIPLAYER LENGTH -->
+
+                <div
+                    id="multiLengthGroup"
+                    class="setting-block"
+                >
+
+                    <span class="toolbar-label">
+                        LENGTH
+                    </span>
+
+
+                    <div
+                        id="multiLengthButtons"
+                        class="lobby-segmented"
+                    >
+
+                        <button
+                            class="length-btn"
+                            data-length="10"
+                            type="button"
+                        >
+                            10
+                        </button>
+
+
+                        <button
+                            class="length-btn active"
+                            data-length="25"
+                            type="button"
+                        >
+                            25
+                        </button>
+
+
+                        <button
+                            class="length-btn"
+                            data-length="50"
+                            type="button"
+                        >
+                            50
+                        </button>
+
+
+                        <button
+                            class="length-btn"
+                            data-length="100"
+                            type="button"
+                        >
+                            100
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+
+                <button
+                    id="createRoomBtn"
+                    class="primary-btn wide-btn"
+                    type="button"
+                >
+                    Create Room
+                </button>
+
+
+                <div class="divider">
+                    OR
+                </div>
+
+
+
+                <!-- JOIN ROOM -->
+
+                <input
+                    id="roomInput"
+                    class="room-input"
+                    type="text"
+                    maxlength="20"
+                    placeholder="ROOM CODE"
+                    autocomplete="off"
+                >
+
+
+                <button
+                    id="joinRoomBtn"
+                    class="secondary-btn wide-btn"
+                    type="button"
+                >
+                    Join Room
+                </button>
+
+
+                <p
+                    id="roomMessage"
+                    class="room-message"
+                >
+                </p>
+
+            </section>
+
+
+        </section>
+
+
+    </main>
+
+
+
+    <!-- =====================================================
+         MULTIPLAYER BATTLE PAGE
+    ====================================================== -->
+
+    <main id="battlePage" class="page">
+
+
+        <!-- BATTLE HEADER -->
+
+        <header class="battle-header">
+
+
+            <button
+                id="battleHomeBtn"
+                class="small-btn"
+                type="button"
+            >
+                ← Leave
+            </button>
+
+
+            <div class="battle-room">
+
+                ROOM
+
+                <strong id="battleRoomCode">
+                    ------
+                </strong>
+
+                <span id="battleModeLabel">
+                    Words
+                </span>
+
+            </div>
+
+
+            <div
+                id="connectionStatus"
+                class="connection-status"
+            >
+                Connected
+            </div>
+
+        </header>
+
+
+
+        <!-- BATTLE ARENA -->
+
+        <section class="battle-arena">
+
+
+            <!-- OPPONENT -->
+
+            <article class="fighter-panel">
+
+
+                <div class="fighter-top">
+
+                    <div>
+
+                        <span class="fighter-label">
+                            OPPONENT
+                        </span>
+
+                        <h2>
+                            Warrior 2
+                        </h2>
+
+                    </div>
+
+
+                    <div class="fighter-status">
+
+                        <span id="opponentWpm">
+                            0
+                        </span>
+
+                        <small>
+                            WPM
+                        </small>
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="fighter-stats">
+
+                    <span>
+                        ACC
+                        <strong id="opponentAccuracy">
+                            100%
+                        </strong>
+                    </span>
+
+
+                    <span>
+                        ERR
+                        <strong id="opponentErrors">
+                            0
+                        </strong>
+                    </span>
+
+                </div>
+
+
+
+                <div
+                    id="opponentTypingText"
+                    class="opponent-typing battle-text"
+                >
+                </div>
+
+            </article>
+
+
+
+            <!-- VS -->
+
+            <div class="vs">
+
+                <span>
+                    VS
+                </span>
+
+            </div>
+
+
+
+            <!-- PLAYER -->
+
+            <article class="fighter-panel">
+
+
+                <div class="fighter-top">
+
+                    <div>
+
+                        <span class="fighter-label">
+                            YOU
+                        </span>
+
+                        <h2>
+                            Warrior 1
+                        </h2>
+
+                    </div>
+
+
+                    <div class="fighter-status">
+
+                        <span id="playerWpm">
+                            0
+                        </span>
+
+                        <small>
+                            WPM
+                        </small>
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="fighter-stats">
+
+                    <span>
+                        ACC
+                        <strong id="playerAccuracy">
+                            100%
+                        </strong>
+                    </span>
+
+
+                    <span>
+                        ERR
+                        <strong id="playerErrors">
+                            0
+                        </strong>
+                    </span>
+
+                </div>
+
+
+
+                <div
+                    id="battleTypingContainer"
+                    class="battle-typing"
+                >
+
+                    <div
+                        id="battleTypingText"
+                        class="battle-text"
+                    >
+                    </div>
+
+
+                    <input
+                        id="battleTypingInput"
+                        class="typing-input"
+                        type="text"
+                        autocomplete="off"
+                        autocorrect="off"
+                        autocapitalize="off"
+                        spellcheck="false"
+                    >
+
+                </div>
+
+            </article>
+
+
+        </section>
+
+
+
+        <p
+            id="battleMessage"
+            class="battle-message"
+        >
+        </p>
+
+
+    </main>
+
+
+
+    <!-- =====================================================
+         RESULT PAGE
+    ====================================================== -->
+
+    <main id="resultPage" class="page">
+
+
+        <section class="result-container">
+
+
+            <p class="result-label">
+                BATTLE COMPLETE
+            </p>
+
+
+            <h1 id="resultTitle">
+                Victory
+            </h1>
+
+
+            <p
+                id="resultSubtitle"
+                class="result-subtitle"
+            >
+                You were faster this round.
+            </p>
+
+
+
+            <!-- RESULT STATS -->
+
+            <div class="result-grid">
+
+
+                <div class="result-card">
+
+                    <span>
+                        WPM
+                    </span>
+
+                    <strong id="resultWpm">
+                        0
+                    </strong>
+
+                </div>
+
+
+                <div class="result-card">
+
+                    <span>
+                        ACCURACY
+                    </span>
+
+                    <strong id="resultAccuracy">
+                        100%
+                    </strong>
+
+                </div>
+
+
+                <div class="result-card">
+
+                    <span>
+                        ERRORS
+                    </span>
+
+                    <strong id="resultErrors">
+                        0
+                    </strong>
+
+                </div>
+
+
+                <div class="result-card">
+
+                    <span>
+                        TIME
+                    </span>
+
+                    <strong id="resultTime">
+                        0s
+                    </strong>
+
+                </div>
+
+
+            </div>
+
+
+
+            <!-- RESULT BUTTONS -->
+
+            <div class="result-buttons">
+
+                <button
+                    id="tryAgainBtn"
+                    class="primary-btn"
+                    type="button"
+                >
+                    Try Again
+                </button>
+
+
+                <button
+                    id="rematchBtn"
+                    class="secondary-btn"
+                    type="button"
+                >
+                    Rematch
+                </button>
+
+
+                <button
+                    id="resultHomeBtn"
+                    class="small-btn"
+                    type="button"
+                >
+                    Home
+                </button>
+
+            </div>
+
+
+            <p
+                id="rematchMessage"
+                class="result-note"
+            >
+            </p>
+
+
+        </section>
+
+
+    </main>
+
+
+
+    <!-- =====================================================
+         LOGIN / SIGN UP MODAL
+    ====================================================== -->
+
+    <div
+        id="accountModal"
+        class="modal hidden"
+    >
+
+
+        <div class="modal-card">
+
+
+            <button
+                id="closeAccountBtn"
+                class="modal-close"
+                type="button"
+                aria-label="Close"
+            >
+                ×
+            </button>
+
+
+
+            <!-- LOGIN -->
+
+            <section id="loginPanel">
+
+
+                <span class="modal-kicker">
+                    ACCOUNT
+                </span>
+
+
+                <h2>
+                    Welcome back
+                </h2>
+
+
+                <p class="modal-description">
+                    Login to keep your typing statistics,
+                    results and multiplayer history.
+                </p>
+
+
+
+                <label for="loginIdentity">
+                    Username or Email
+                </label>
+
+
+                <input
+                    id="loginIdentity"
+                    class="modal-input"
+                    type="text"
+                    autocomplete="username"
+                >
+
+
+
+                <label for="loginPassword">
+                    Password
+                </label>
+
+
+                <input
+                    id="loginPassword"
+                    class="modal-input"
+                    type="password"
+                    autocomplete="current-password"
+                >
+
+
+                <button
+                    id="submitLoginBtn"
+                    class="primary-btn wide-btn"
+                    type="button"
+                >
+                    Login
+                </button>
+
+
+                <p
+                    id="loginMessage"
+                    class="account-message"
+                >
+                </p>
+
+
+                <p class="switch-account">
+
+                    Don't have an account?
+
+                    <button
+                        id="switchToSignup"
+                        class="text-btn"
+                        type="button"
+                    >
+                        Sign Up
+                    </button>
+
+                </p>
+
+
+            </section>
+
+
+
+            <!-- SIGN UP -->
+
+            <section
+                id="signupPanel"
+                class="hidden"
+            >
+
+
+                <span class="modal-kicker">
+                    ACCOUNT
+                </span>
+
+
+                <h2>
+                    Create account
+                </h2>
+
+
+                <p class="modal-description">
+                    Create your warrior profile and keep
+                    your typing progress.
+                </p>
+
+
+
+                <label for="signupUsername">
+                    Username
+                </label>
+
+
+                <input
+                    id="signupUsername"
+                    class="modal-input"
+                    type="text"
+                    autocomplete="username"
+                >
+
+
+
+                <label for="signupEmail">
+                    Email
+                </label>
+
+
+                <input
+                    id="signupEmail"
+                    class="modal-input"
+                    type="email"
+                    autocomplete="email"
+                >
+
+
+
+                <label for="signupPassword">
+                    Password
+                </label>
+
+
+                <input
+                    id="signupPassword"
+                    class="modal-input"
+                    type="password"
+                    autocomplete="new-password"
+                >
+
+
+
+                <label for="signupConfirm">
+                    Confirm Password
+                </label>
+
+
+                <input
+                    id="signupConfirm"
+                    class="modal-input"
+                    type="password"
+                    autocomplete="new-password"
+                >
+
+
+                <button
+                    id="submitSignupBtn"
+                    class="primary-btn wide-btn"
+                    type="button"
+                >
+                    Create Account
+                </button>
+
+
+                <p
+                    id="signupMessage"
+                    class="account-message"
+                >
+                </p>
+
+
+                <p class="switch-account">
+
+                    Already have an account?
+
+                    <button
+                        id="switchToLogin"
+                        class="text-btn"
+                        type="button"
+                    >
+                        Login
+                    </button>
+
+                </p>
+
+
+            </section>
+
+
+        </div>
+
+
+    </div>
+
+
+
+    <!-- JAVASCRIPT -->
+
+    <script src="script.js"></script>
+
+</body>
+
+</html>
+
