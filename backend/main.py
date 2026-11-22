@@ -7,7 +7,7 @@ import secrets
 import hmac
 from datetime import datetime, timezone
 
-from database import users_collection
+from database import users_collection, matches_collection
 
 
 app = FastAPI()
@@ -45,6 +45,23 @@ class LoginRequest(BaseModel):
 
     identity: str
     password: str
+
+# ============================================================
+# MATCH RESULT DATA MODEL
+# ============================================================
+
+class MatchResultRequest(BaseModel):
+
+    username: str
+    match_type: str
+    result: str
+
+    wpm: float = 0
+    accuracy: float = 0
+    errors: int = 0
+
+    mode: str = "words"
+    length: int = 25
 
 
 # ============================================================
@@ -450,6 +467,300 @@ async def login(data: LoginRequest):
 
     }
 
+# ============================================================
+# SAVE MATCH RESULT
+# ============================================================
+
+@app.post("/record-match")
+async def record_match(data: MatchResultRequest):
+
+    username = data.username.strip()
+
+    if not username:
+        return {
+            "success": False,
+            "message": "Username is required."
+        }
+
+    if data.match_type not in ["single", "multiplayer"]:
+        return {
+            "success": False,
+            "message": "Invalid match type."
+        }
+
+    if data.match_type == "single":
+        if data.result != "practice":
+            return {
+                "success": False,
+                "message": "Invalid single-player result."
+            }
+
+    elif data.result not in ["win", "loss"]:
+        return {
+            "success": False,
+            "message": "Invalid multiplayer result."
+        }
+
+    if data.wpm < 0 or data.wpm > 1000:
+        return {
+            "success": False,
+            "message": "Invalid WPM value."
+        }
+
+    if data.accuracy < 0 or data.accuracy > 100:
+        return {
+            "success": False,
+            "message": "Invalid accuracy value."
+        }
+
+    if data.errors < 0:
+        return {
+            "success": False,
+            "message": "Invalid error count."
+        }
+
+    user = users_collection.find_one({
+        "username": username
+    })
+
+    if not user:
+        return {
+            "success": False,
+            "message": "Registered user not found."
+        }
+
+    stats = user.get("stats", {})
+
+    old_matches = stats.get("matches", 0)
+    old_wins = stats.get("wins", 0)
+    old_losses = stats.get("losses", 0)
+
+    old_best_wpm = stats.get("best_wpm", 0)
+
+    old_average_wpm = stats.get("average_wpm", 0)
+    old_average_accuracy = stats.get("average_accuracy", 0)
+
+    new_matches = old_matches + 1
+
+    new_average_wpm = (
+        (old_average_wpm * old_matches + data.wpm)
+        / new_matches
+    )
+
+    new_average_accuracy = (
+        (old_average_accuracy * old_matches + data.accuracy)
+        / new_matches
+    )
+
+    new_wins = old_wins
+    new_losses = old_losses
+
+    if data.match_type == "multiplayer":
+
+        if data.result == "win":
+            new_wins += 1
+
+        elif data.result == "loss":
+            new_losses += 1
+
+    new_best_wpm = max(
+        old_best_wpm,
+        data.wpm
+    )
+
+    updated_stats = {
+
+        "matches": new_matches,
+
+        "wins": new_wins,
+
+        "losses": new_losses,
+
+        "best_wpm": new_best_wpm,
+
+        "average_wpm": round(new_average_wpm, 2),
+
+        "average_accuracy": round(
+            new_average_accuracy,
+            2
+        )
+
+    }
+
+    # Save the match record
+    match_record = {
+
+        "username": username,
+
+        "display_name": user.get(
+            "display_name",
+            username
+        ),
+
+        "match_type": data.match_type,
+
+        "result": data.result,
+
+        "wpm": data.wpm,
+
+        "accuracy": data.accuracy,
+
+        "errors": data.errors,
+
+        "mode": data.mode,
+
+        "length": data.length,
+
+        "date": datetime.now(timezone.utc)
+
+    }
+
+    matches_collection.insert_one(match_record)
+
+    # Update player statistics
+    users_collection.update_one(
+
+        {"username": username},
+
+        {
+            "$set": {
+                "stats": updated_stats
+            }
+        }
+
+    )
+
+    return {
+
+        "success": True,
+
+        "message": "Match result saved successfully.",
+
+        "stats": updated_stats
+
+    }
+
+
+# ============================================================
+# GET PLAYER PROFILE STATISTICS
+# ============================================================
+
+@app.get("/profile/{username}")
+async def get_profile(username: str):
+
+    user = users_collection.find_one(
+        {"username": username.strip()}
+    )
+
+    if not user:
+        return {
+            "success": False,
+            "message": "Player not found."
+        }
+
+    stats = user.get("stats", {})
+
+    return {
+
+        "success": True,
+
+        "username": user.get("username"),
+
+        "display_name": user.get(
+            "display_name",
+            user.get("username")
+        ),
+
+        "stats": {
+
+            "matches": stats.get("matches", 0),
+
+            "wins": stats.get("wins", 0),
+
+            "losses": stats.get("losses", 0),
+
+            "best_wpm": stats.get("best_wpm", 0),
+
+            "average_wpm": stats.get("average_wpm", 0),
+
+            "average_accuracy": stats.get(
+                "average_accuracy",
+                0
+            )
+
+        }
+
+    }
+
+
+# ============================================================
+# GLOBAL TOP 5 LEADERBOARD
+# ============================================================
+
+@app.get("/leaderboard")
+async def get_leaderboard():
+
+    players = users_collection.find(
+
+        {
+            "stats.best_wpm": {
+                "$gt": 0
+            }
+        },
+
+        {
+            "_id": 0,
+
+            "username": 1,
+
+            "display_name": 1,
+
+            "stats.best_wpm": 1
+
+        }
+
+    ).sort(
+
+        [
+            ("stats.best_wpm", -1),
+            ("username", 1)
+        ]
+
+    ).limit(5)
+
+
+    leaderboard = []
+
+    for rank, player in enumerate(players, start=1):
+
+        stats = player.get("stats", {})
+
+        leaderboard.append({
+
+            "rank": rank,
+
+            "username": player.get("username"),
+
+            "display_name": player.get(
+                "display_name",
+                player.get("username")
+            ),
+
+            "best_wpm": stats.get(
+                "best_wpm",
+                0
+            )
+
+        })
+
+
+    return {
+
+        "success": True,
+
+        "leaderboard": leaderboard
+
+    }
 
 # ============================================================
 # TEXT DATA

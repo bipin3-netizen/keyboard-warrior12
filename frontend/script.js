@@ -1,4 +1,3 @@
-
 /* =====================================================
    KEYBOARD WARRIOR
    COMPLETE FRONTEND JAVASCRIPT
@@ -390,6 +389,26 @@ const rematchMessage =
 
 
 /* =====================================================
+   LEADERBOARD
+===================================================== */
+
+const leaderboardSection =
+    document.getElementById(
+        "leaderboardSection"
+    );
+
+const leaderboardList =
+    document.getElementById(
+        "leaderboardList"
+    );
+
+const leaderboardMessage =
+    document.getElementById(
+        "leaderboardMessage"
+    );
+
+
+/* =====================================================
    ACCOUNT MODAL
 ===================================================== */
 
@@ -730,6 +749,424 @@ const closeSettingsBtn =
 
 let loggedInUser =
     loadLocalUser();
+
+
+/* =====================================================
+   MATCH SUBMISSION STATE
+===================================================== */
+
+let multiplayerResultSaved = false;
+
+
+/* =====================================================
+   RECORD MATCH IN DATABASE
+===================================================== */
+
+async function recordMatch(
+    matchType,
+    result,
+    stats,
+    mode,
+    length
+) {
+
+    if (!loggedInUser) {
+        return;
+    }
+
+
+    if (!loggedInUser.username) {
+        return;
+    }
+
+
+    try {
+
+        const response =
+            await fetch(
+                `${API_URL}/record-match`,
+                {
+
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+
+                    body: JSON.stringify({
+
+                        username:
+                            loggedInUser.username,
+
+                        match_type:
+                            matchType,
+
+                        result:
+                            result,
+
+                        wpm:
+                            stats.wpm,
+
+                        accuracy:
+                            stats.accuracy,
+
+                        errors:
+                            stats.errors,
+
+                        mode:
+                            mode,
+
+                        length:
+                            length
+
+                    })
+
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (
+            !response.ok ||
+            !data.success
+        ) {
+
+            console.warn(
+                "Match could not be saved:",
+                data.message || response.status
+            );
+
+            return;
+
+        }
+
+
+        /*
+         * Update local profile statistics.
+         */
+
+        if (data.stats) {
+
+            loggedInUser.stats =
+                data.stats;
+
+            saveLocalUser(
+                loggedInUser
+            );
+
+            updateAccountUI();
+
+        }
+
+
+        /*
+         * Refresh leaderboard after a
+         * successful database update.
+         */
+
+        await loadLeaderboard();
+
+
+        console.log(
+            "Match successfully saved to database."
+        );
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "RECORD MATCH ERROR:",
+            error
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   LOAD PROFILE FROM DATABASE
+===================================================== */
+
+async function refreshProfileStats() {
+
+    if (
+        !loggedInUser ||
+        !loggedInUser.username
+    ) {
+
+        return;
+
+    }
+
+
+    try {
+
+        const response =
+            await fetch(
+                `${API_URL}/profile/${encodeURIComponent(loggedInUser.username)}`
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (
+            !response.ok ||
+            !data.success
+        ) {
+
+            console.warn(
+                "Could not refresh profile statistics."
+            );
+
+            return;
+
+        }
+
+
+        loggedInUser.stats =
+            data.stats || {};
+
+
+        if (data.display_name) {
+
+            loggedInUser.displayName =
+                data.display_name;
+
+        }
+
+
+        saveLocalUser(
+            loggedInUser
+        );
+
+
+        updateAccountUI();
+
+    }
+
+    catch (error) {
+
+        console.warn(
+            "PROFILE REFRESH ERROR:",
+            error
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   LOAD TOP 5 LEADERBOARD
+===================================================== */
+
+async function loadLeaderboard() {
+
+    if (!leaderboardList) {
+        return;
+    }
+
+
+    if (leaderboardMessage) {
+
+        leaderboardMessage.textContent =
+            "Loading leaderboard...";
+
+    }
+
+
+    leaderboardList.innerHTML = "";
+
+
+    try {
+
+        const response =
+            await fetch(
+                `${API_URL}/leaderboard`
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (
+            !response.ok ||
+            !data.success
+        ) {
+
+            throw new Error(
+                data.message ||
+                "Could not load leaderboard."
+            );
+
+        }
+
+
+        const players =
+            Array.isArray(data.leaderboard)
+                ? data.leaderboard.slice(0, 5)
+                : [];
+
+
+        leaderboardList.innerHTML = "";
+
+
+        if (!players.length) {
+
+            if (leaderboardMessage) {
+
+                leaderboardMessage.textContent =
+                    "No warriors on the leaderboard yet. Complete a match to get started!";
+
+            }
+
+            return;
+
+        }
+
+
+        if (leaderboardMessage) {
+
+            leaderboardMessage.textContent =
+                "";
+
+        }
+
+
+        players.forEach(
+            (player, index) => {
+
+                const row =
+                    document.createElement(
+                        "div"
+                    );
+
+
+                row.className =
+                    "leaderboard-item";
+
+
+                const rank =
+                    document.createElement(
+                        "span"
+                    );
+
+
+                rank.className =
+                    "leaderboard-rank";
+
+
+                rank.textContent =
+                    `#${player.rank || index + 1}`;
+
+
+                const playerInfo =
+                    document.createElement(
+                        "div"
+                    );
+
+
+                playerInfo.className =
+                    "leaderboard-player";
+
+
+                const name =
+                    document.createElement(
+                        "strong"
+                    );
+
+
+                name.className =
+                    "leaderboard-name";
+
+
+                name.textContent =
+                    player.display_name ||
+                    player.username ||
+                    "Warrior";
+
+
+                const username =
+                    document.createElement(
+                        "span"
+                    );
+
+
+                username.className =
+                    "leaderboard-username";
+
+
+                username.textContent =
+                    "@" + (
+                        player.username ||
+                        "warrior"
+                    );
+
+
+                playerInfo.appendChild(name);
+
+                playerInfo.appendChild(username);
+
+
+                const score =
+                    document.createElement(
+                        "span"
+                    );
+
+
+                score.className =
+                    "leaderboard-wpm";
+
+
+                score.textContent =
+                    `${player.best_wpm ?? 0} WPM`;
+
+
+                row.appendChild(rank);
+
+                row.appendChild(playerInfo);
+
+                row.appendChild(score);
+
+
+                leaderboardList.appendChild(
+                    row
+                );
+
+            }
+        );
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "LEADERBOARD ERROR:",
+            error
+        );
+
+
+        leaderboardList.innerHTML = "";
+
+
+        if (leaderboardMessage) {
+
+            leaderboardMessage.textContent =
+                "Leaderboard is currently unavailable.";
+
+        }
+
+    }
+
+}
 
 
 /* =====================================================
@@ -1556,10 +1993,6 @@ if (typingInput) {
         "keydown",
         event => {
 
-            /*
-             * BACKSPACE OFF
-             */
-
             if (
                 event.key === "Backspace" &&
                 !singleBackspaceEnabled
@@ -1571,13 +2004,6 @@ if (typingInput) {
 
             }
 
-
-            /*
-             * CTRL + ENTER
-             *
-             * During an active test:
-             * restart the SAME challenge.
-             */
 
             if (
                 event.key === "Enter"
@@ -1759,10 +2185,6 @@ function finishSinglePlayer() {
         "single";
 
 
-    /*
-     * SINGLE RESULT BUTTONS
-     */
-
     if (tryAgainBtn) {
 
         tryAgainBtn.classList.remove(
@@ -1800,6 +2222,20 @@ function finishSinglePlayer() {
 
     saveSingleHistory(
         stats
+    );
+
+
+    /*
+     * SAVE SINGLE PLAYER RESULT
+     * TO MONGODB.
+     */
+
+    recordMatch(
+        "single",
+        "practice",
+        stats,
+        singleMode,
+        singleLength
     );
 
 
@@ -1878,16 +2314,6 @@ function resetSingleTestState() {
    RESTART SINGLE
 ===================================================== */
 
-/*
- * forceNewChallenge = true
- *
- * Generates a completely new random challenge.
- *
- * forceNewChallenge = false
- *
- * Reuses the current challenge.
- */
-
 function restartSinglePlayer(
     focusInput = false,
     forceNewChallenge = true
@@ -1932,15 +2358,6 @@ function restartSinglePlayer(
 
 function continueSinglePlayer() {
 
-    /*
-     * Continue means:
-     *
-     * - same mode
-     * - same length
-     * - same Backspace setting
-     * - NEW random challenge
-     */
-
     restartSinglePlayer(
         true,
         true
@@ -1964,10 +2381,6 @@ if (restartBtn) {
         "click",
         () => {
 
-            /*
-             * Restart = same challenge.
-             */
-
             restartSinglePlayer(
                 true,
                 false
@@ -1988,10 +2401,6 @@ if (continueBtn) {
     continueBtn.addEventListener(
         "click",
         () => {
-
-            /*
-             * Continue = new challenge.
-             */
 
             if (
                 currentResultType ===
@@ -2029,10 +2438,6 @@ if (tryAgainBtn) {
 
             }
 
-
-            /*
-             * Try Again = SAME exact challenge.
-             */
 
             restartSinglePlayer(
                 true,
@@ -2116,11 +2521,6 @@ singleModeButtons.forEach(
                 );
 
 
-                /*
-                 * Changing mode creates
-                 * a new challenge.
-                 */
-
                 restartSinglePlayer(
                     true,
                     true
@@ -2174,11 +2574,6 @@ singleLengthButtons.forEach(
                     "active"
                 );
 
-
-                /*
-                 * Changing length creates
-                 * a new challenge.
-                 */
 
                 restartSinglePlayer(
                     true,
@@ -2435,11 +2830,6 @@ if (singlePlayerBtn) {
                 "gamePage"
             );
 
-
-            /*
-             * Starting a new single-player session
-             * generates a new challenge.
-             */
 
             restartSinglePlayer(
                 true,
@@ -3144,6 +3534,8 @@ function showBattlePage() {
 
     rematchRequested = false;
 
+    multiplayerResultSaved = false;
+
 
     if (battleRoomCode) {
 
@@ -3752,6 +4144,18 @@ function finishBattle(
     data
 ) {
 
+    /*
+     * Prevent duplicate result submissions.
+     */
+
+    if (multiplayerResultSaved) {
+        return;
+    }
+
+
+    multiplayerResultSaved = true;
+
+
     clearInterval(
         battleTimerInterval
     );
@@ -3762,14 +4166,30 @@ function finishBattle(
     battleFinished = true;
 
 
+    /*
+     * Calculate OUR OWN statistics.
+     *
+     * Do not use data.wpm here because
+     * the server may send the winner's
+     * statistics to both players.
+     */
+
+    const stats =
+        calculateStats(
+            battleTypedText,
+            battleText,
+            battleStartTime
+        );
+
+
     const finalWpm =
-        data.wpm ?? 0;
+        stats.wpm;
 
     const finalAccuracy =
-        data.accuracy ?? 100;
+        stats.accuracy;
 
     const finalErrors =
-        data.errors ?? 0;
+        stats.errors;
 
 
     if (resultWpm) {
@@ -3828,10 +4248,6 @@ function finishBattle(
         "multiplayer";
 
 
-    /*
-     * Multiplayer does not use Continue.
-     */
-
     if (continueBtn) {
 
         continueBtn.classList.add(
@@ -3867,13 +4283,27 @@ function finishBattle(
     }
 
 
+    /*
+     * SAVE LOCAL HISTORY.
+     */
+
     saveMultiplayerHistory(
         won,
-        {
-            wpm: finalWpm,
-            accuracy: finalAccuracy,
-            errors: finalErrors
-        }
+        stats
+    );
+
+
+    /*
+     * SAVE MULTIPLAYER RESULT
+     * TO MONGODB.
+     */
+
+    recordMatch(
+        "multiplayer",
+        won ? "win" : "loss",
+        stats,
+        multiplayerMode,
+        multiplayerLength
     );
 
 
@@ -4155,10 +4585,6 @@ document.addEventListener(
             document.activeElement;
 
 
-        /*
-         * Don't interfere with account forms.
-         */
-
         if (
             activeElement &&
             (
@@ -4175,13 +4601,6 @@ document.addEventListener(
 
         }
 
-
-        /*
-         * SINGLE PLAYER
-         *
-         * During game:
-         * restart SAME challenge.
-         */
 
         if (
             gamePage &&
@@ -4201,13 +4620,6 @@ document.addEventListener(
 
         }
 
-
-        /*
-         * RESULT PAGE
-         *
-         * Single-player result:
-         * Ctrl + Enter = Continue.
-         */
 
         if (
             resultPage &&
@@ -4494,6 +4906,14 @@ function openProfileModal() {
     profileModal?.classList.remove(
         "hidden"
     );
+
+
+    /*
+     * Refresh statistics when opening
+     * the profile.
+     */
+
+    refreshProfileStats();
 
 }
 
@@ -4972,7 +5392,6 @@ function getHistory() {
         return [];
 
     }
-
 
 }
 
@@ -6071,6 +6490,14 @@ if (submitLoginBtn) {
                     updateAccountUI();
 
 
+                    /*
+                     * Get the latest database
+                     * statistics after login.
+                     */
+
+                    refreshProfileStats();
+
+
                     showLoginMessage(
                         `Welcome back, ${loggedInUser.displayName}!`,
                         "success"
@@ -6329,6 +6756,24 @@ function initializeGame() {
 
 
     /*
+     * Load Top 5 leaderboard.
+     */
+
+    loadLeaderboard();
+
+
+    /*
+     * Refresh saved user's statistics.
+     */
+
+    if (loggedInUser) {
+
+        refreshProfileStats();
+
+    }
+
+
+    /*
      * Create the first challenge.
      */
 
@@ -6341,4 +6786,3 @@ function initializeGame() {
 
 
 initializeGame();
-
