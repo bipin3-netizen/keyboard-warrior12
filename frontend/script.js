@@ -9,8 +9,8 @@
    SERVER
 ===================================================== */
 
-const SERVER_URL = "ws://127.0.0.1:8000";
-const API_URL = "http://127.0.0.1:8000";
+const SERVER_URL = "wss://keyboard-warrior12.onrender.com";
+const API_URL = "https://keyboard-warrior12.onrender.com";
 
 
 /* =====================================================
