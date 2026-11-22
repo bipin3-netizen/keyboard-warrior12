@@ -10,6 +10,11 @@
         content="width=device-width, initial-scale=1.0"
     >
 
+    <meta
+        name="description"
+        content="Keyboard Warrior - A competitive typing game."
+    >
+
     <title>Keyboard Warrior</title>
 
     <link rel="stylesheet" href="style.css">
@@ -35,23 +40,157 @@
             </div>
 
 
+            <!-- ACCOUNT HEADER -->
+
             <div class="account-actions">
 
-                <button
-                    id="loginBtn"
-                    class="header-btn"
-                    type="button"
-                >
-                    Login
-                </button>
 
-                <button
-                    id="signupBtn"
-                    class="header-btn filled"
-                    type="button"
+                <!-- LOGGED OUT -->
+
+                <div
+                    id="loggedOutActions"
+                    class="account-state"
                 >
-                    Sign Up
-                </button>
+
+                    <button
+                        id="loginBtn"
+                        class="header-btn"
+                        type="button"
+                    >
+                        Login
+                    </button>
+
+
+                    <button
+                        id="signupBtn"
+                        class="header-btn filled"
+                        type="button"
+                    >
+                        Sign Up
+                    </button>
+
+                </div>
+
+
+
+                <!-- LOGGED IN -->
+
+                <div
+                    id="loggedInActions"
+                    class="account-state hidden"
+                >
+
+                    <button
+                        id="profileHeaderBtn"
+                        class="profile-header-btn"
+                        type="button"
+                        aria-label="Open profile"
+                    >
+
+                        <span
+                            id="headerAvatar"
+                            class="header-avatar"
+                        >
+                            ⚔
+                        </span>
+
+
+                        <span
+                            id="headerUsername"
+                            class="header-username"
+                        >
+                            Warrior
+                        </span>
+
+
+                        <span class="profile-arrow">
+                            ▾
+                        </span>
+
+                    </button>
+
+
+                    <!-- ACCOUNT MENU -->
+
+                    <div
+                        id="accountMenu"
+                        class="account-menu hidden"
+                    >
+
+                        <div class="account-menu-header">
+
+                            <span
+                                id="menuAvatar"
+                                class="menu-avatar"
+                            >
+                                ⚔
+                            </span>
+
+
+                            <div class="menu-user-info">
+
+                                <strong id="menuDisplayName">
+                                    Warrior
+                                </strong>
+
+
+                                <span id="menuUsername">
+                                    @warrior
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="account-menu-divider"></div>
+
+
+                        <button
+                            id="menuProfileBtn"
+                            class="account-menu-item"
+                            type="button"
+                        >
+                            <span>👤</span>
+                            Profile
+                        </button>
+
+
+                        <button
+                            id="menuHistoryBtn"
+                            class="account-menu-item"
+                            type="button"
+                        >
+                            <span>📊</span>
+                            Match History
+                        </button>
+
+
+                        <button
+                            id="menuSettingsBtn"
+                            class="account-menu-item"
+                            type="button"
+                        >
+                            <span>⚙</span>
+                            Settings
+                        </button>
+
+
+                        <div class="account-menu-divider"></div>
+
+
+                        <button
+                            id="logoutBtn"
+                            class="account-menu-item logout-item"
+                            type="button"
+                        >
+                            <span>↪</span>
+                            Logout
+                        </button>
+
+                    </div>
+
+                </div>
 
             </div>
 
@@ -124,7 +263,9 @@
                         ⌨
                     </div>
 
-                    <h3>TYPE</h3>
+                    <h3>
+                        TYPE
+                    </h3>
 
                     <p>
                         Practice typing with different
@@ -140,7 +281,9 @@
                         ⚡
                     </div>
 
-                    <h3>SPEED</h3>
+                    <h3>
+                        SPEED
+                    </h3>
 
                     <p>
                         Track your WPM, accuracy, errors
@@ -156,7 +299,9 @@
                         ⚔
                     </div>
 
-                    <h3>COMPETE</h3>
+                    <h3>
+                        COMPETE
+                    </h3>
 
                     <p>
                         Challenge another player and
@@ -172,7 +317,9 @@
                         🎯
                     </div>
 
-                    <h3>MASTER</h3>
+                    <h3>
+                        MASTER
+                    </h3>
 
                     <p>
                         Choose words, sentences,
@@ -294,7 +441,7 @@
 
                     <button
                         class="mode-btn"
-                        data-mode="quotes"
+                        data-mode="quote"
                         type="button"
                     >
                         Quotes
@@ -356,6 +503,46 @@
                         type="button"
                     >
                         100
+                    </button>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- BACKSPACE SETTING -->
+
+            <div
+                id="singleBackspaceGroup"
+                class="mode-group"
+            >
+
+                <span class="toolbar-label">
+                    BACKSPACE
+                </span>
+
+
+                <div
+                    id="singleBackspaceButtons"
+                    class="segmented"
+                >
+
+                    <button
+                        class="backspace-btn active"
+                        data-backspace="on"
+                        type="button"
+                    >
+                        ON
+                    </button>
+
+
+                    <button
+                        class="backspace-btn"
+                        data-backspace="off"
+                        type="button"
+                    >
+                        OFF
                     </button>
 
                 </div>
@@ -449,13 +636,14 @@
                 autocorrect="off"
                 autocapitalize="off"
                 spellcheck="false"
+                aria-label="Typing input"
             >
 
         </section>
 
 
         <p class="typing-hint">
-            Start typing • Backspace corrects mistakes
+            Start typing • Ctrl + Enter to restart
         </p>
 
 
@@ -566,7 +754,7 @@
 
                         <button
                             class="mode-btn"
-                            data-mode="quotes"
+                            data-mode="quote"
                             type="button"
                         >
                             Quotes
@@ -636,6 +824,46 @@
 
 
 
+                <!-- MULTIPLAYER BACKSPACE -->
+
+                <div
+                    id="multiBackspaceGroup"
+                    class="setting-block"
+                >
+
+                    <span class="toolbar-label">
+                        BACKSPACE
+                    </span>
+
+
+                    <div
+                        id="multiBackspaceButtons"
+                        class="lobby-segmented"
+                    >
+
+                        <button
+                            class="backspace-btn active"
+                            data-backspace="on"
+                            type="button"
+                        >
+                            ON
+                        </button>
+
+
+                        <button
+                            class="backspace-btn"
+                            data-backspace="off"
+                            type="button"
+                        >
+                            OFF
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+
                 <button
                     id="createRoomBtn"
                     class="primary-btn wide-btn"
@@ -657,9 +885,10 @@
                     id="roomInput"
                     class="room-input"
                     type="text"
-                    maxlength="20"
+                    maxlength="6"
                     placeholder="ROOM CODE"
                     autocomplete="off"
+                    spellcheck="false"
                 >
 
 
@@ -675,6 +904,7 @@
                 <p
                     id="roomMessage"
                     class="room-message"
+                    aria-live="polite"
                 >
                 </p>
 
@@ -717,8 +947,17 @@
                     ------
                 </strong>
 
+
                 <span id="battleModeLabel">
                     Words
+                </span>
+
+
+                <span
+                    id="battleBackspaceLabel"
+                    class="battle-setting-label"
+                >
+                    BACKSPACE ON
                 </span>
 
             </div>
@@ -753,7 +992,7 @@
                             OPPONENT
                         </span>
 
-                        <h2>
+                        <h2 id="opponentName">
                             Warrior 2
                         </h2>
 
@@ -832,7 +1071,7 @@
                             YOU
                         </span>
 
-                        <h2>
+                        <h2 id="playerName">
                             Warrior 1
                         </h2>
 
@@ -896,6 +1135,7 @@
                         autocorrect="off"
                         autocapitalize="off"
                         spellcheck="false"
+                        aria-label="Multiplayer typing input"
                     >
 
                 </div>
@@ -910,6 +1150,7 @@
         <p
             id="battleMessage"
             class="battle-message"
+            aria-live="polite"
         >
         </p>
 
@@ -1012,9 +1253,21 @@
 
             <div class="result-buttons">
 
+
+                <!-- CONTINUE -->
+
+                <button
+                    id="continueBtn"
+                    class="primary-btn"
+                    type="button"
+                >
+                    Continue →
+                </button>
+
+
                 <button
                     id="tryAgainBtn"
-                    class="primary-btn"
+                    class="secondary-btn"
                     type="button"
                 >
                     Try Again
@@ -1041,9 +1294,17 @@
             </div>
 
 
+            <!-- CONTINUE SHORTCUT -->
+
+            <p class="result-hint">
+                Ctrl + Enter to quick continue
+            </p>
+
+
             <p
                 id="rematchMessage"
                 class="result-note"
+                aria-live="polite"
             >
             </p>
 
@@ -1052,6 +1313,491 @@
 
 
     </main>
+
+
+
+    <!-- =====================================================
+         ACCOUNT / PROFILE SYSTEM
+    ====================================================== -->
+
+
+    <div
+        id="profileModal"
+        class="modal hidden"
+    >
+
+
+        <div class="profile-modal-card">
+
+
+            <!-- CLOSE -->
+
+            <button
+                id="closeProfileBtn"
+                class="modal-close"
+                type="button"
+                aria-label="Close profile"
+            >
+                ×
+            </button>
+
+
+
+            <!-- PROFILE OVERVIEW -->
+
+            <section
+                id="profilePanel"
+                class="profile-panel"
+            >
+
+                <span class="modal-kicker">
+                    WARRIOR PROFILE
+                </span>
+
+
+                <div class="profile-main">
+
+
+                    <div
+                        id="profileAvatar"
+                        class="profile-avatar"
+                    >
+                        ⚔
+                    </div>
+
+
+                    <h2 id="profileDisplayName">
+                        Warrior
+                    </h2>
+
+
+                    <p id="profileUsername">
+                        @warrior
+                    </p>
+
+                </div>
+
+
+
+                <!-- PROFILE STATS -->
+
+                <div class="profile-stats-grid">
+
+
+                    <div class="profile-stat-card">
+
+                        <span>
+                            BEST WPM
+                        </span>
+
+                        <strong id="profileBestWpm">
+                            0
+                        </strong>
+
+                    </div>
+
+
+                    <div class="profile-stat-card">
+
+                        <span>
+                            AVG WPM
+                        </span>
+
+                        <strong id="profileAverageWpm">
+                            0
+                        </strong>
+
+                    </div>
+
+
+                    <div class="profile-stat-card">
+
+                        <span>
+                            ACCURACY
+                        </span>
+
+                        <strong id="profileAverageAccuracy">
+                            0%
+                        </strong>
+
+                    </div>
+
+
+                    <div class="profile-stat-card">
+
+                        <span>
+                            MATCHES
+                        </span>
+
+                        <strong id="profileMatches">
+                            0
+                        </strong>
+
+                    </div>
+
+
+                    <div class="profile-stat-card">
+
+                        <span>
+                            WINS
+                        </span>
+
+                        <strong id="profileWins">
+                            0
+                        </strong>
+
+                    </div>
+
+
+                    <div class="profile-stat-card">
+
+                        <span>
+                            LOSSES
+                        </span>
+
+                        <strong id="profileLosses">
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- PROFILE ACTIONS -->
+
+                <div class="profile-actions">
+
+                    <button
+                        id="editProfileBtn"
+                        class="primary-btn wide-btn"
+                        type="button"
+                    >
+                        Edit Profile
+                    </button>
+
+
+                    <button
+                        id="profileHistoryBtn"
+                        class="secondary-btn wide-btn"
+                        type="button"
+                    >
+                        Match History
+                    </button>
+
+
+                    <button
+                        id="profileSettingsBtn"
+                        class="small-btn wide-btn"
+                        type="button"
+                    >
+                        Settings
+                    </button>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- EDIT PROFILE -->
+
+            <section
+                id="editProfilePanel"
+                class="profile-panel hidden"
+            >
+
+                <span class="modal-kicker">
+                    PROFILE
+                </span>
+
+
+                <h2>
+                    Edit Profile
+                </h2>
+
+
+                <p class="modal-description">
+                    Customize how other warriors see you.
+                </p>
+
+
+
+                <!-- AVATAR -->
+
+                <div class="avatar-editor">
+
+                    <span
+                        id="editProfileAvatar"
+                        class="profile-avatar small"
+                    >
+                        ⚔
+                    </span>
+
+
+                    <div>
+
+                        <span class="field-title">
+                            Avatar
+                        </span>
+
+
+                        <div
+                            id="avatarChoices"
+                            class="avatar-choices"
+                        >
+
+                            <button
+                                class="avatar-choice active"
+                                data-avatar="⚔"
+                                type="button"
+                            >
+                                ⚔
+                            </button>
+
+
+                            <button
+                                class="avatar-choice"
+                                data-avatar="🥷"
+                                type="button"
+                            >
+                                🥷
+                            </button>
+
+
+                            <button
+                                class="avatar-choice"
+                                data-avatar="🐺"
+                                type="button"
+                            >
+                                🐺
+                            </button>
+
+
+                            <button
+                                class="avatar-choice"
+                                data-avatar="⚡"
+                                type="button"
+                            >
+                                ⚡
+                            </button>
+
+
+                            <button
+                                class="avatar-choice"
+                                data-avatar="🔥"
+                                type="button"
+                            >
+                                🔥
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- DISPLAY NAME -->
+
+                <label for="profileDisplayNameInput">
+                    Display Name
+                </label>
+
+
+                <input
+                    id="profileDisplayNameInput"
+                    class="modal-input"
+                    type="text"
+                    maxlength="30"
+                    autocomplete="off"
+                >
+
+
+
+                <!-- USERNAME -->
+
+                <label for="profileUsernameInput">
+                    Username
+                </label>
+
+
+                <input
+                    id="profileUsernameInput"
+                    class="modal-input"
+                    type="text"
+                    maxlength="30"
+                    autocomplete="off"
+                >
+
+
+                <button
+                    id="saveProfileBtn"
+                    class="primary-btn wide-btn"
+                    type="button"
+                >
+                    Save Changes
+                </button>
+
+
+                <button
+                    id="cancelProfileEditBtn"
+                    class="small-btn wide-btn"
+                    type="button"
+                >
+                    Cancel
+                </button>
+
+
+                <p
+                    id="profileMessage"
+                    class="account-message"
+                >
+                </p>
+
+            </section>
+
+
+
+            <!-- MATCH HISTORY -->
+
+            <section
+                id="historyPanel"
+                class="profile-panel hidden"
+            >
+
+                <span class="modal-kicker">
+                    PERFORMANCE
+                </span>
+
+
+                <h2>
+                    Match History
+                </h2>
+
+
+                <p class="modal-description">
+                    Your recent typing battles and results.
+                </p>
+
+
+
+                <div
+                    id="matchHistoryList"
+                    class="match-history-list"
+                >
+
+                    <div
+                        id="emptyHistoryMessage"
+                        class="empty-history"
+                    >
+                        No matches played yet.
+                    </div>
+
+                </div>
+
+
+                <button
+                    id="closeHistoryBtn"
+                    class="small-btn wide-btn"
+                    type="button"
+                >
+                    Back to Profile
+                </button>
+
+            </section>
+
+
+
+            <!-- SETTINGS -->
+
+            <section
+                id="settingsPanel"
+                class="profile-panel hidden"
+            >
+
+                <span class="modal-kicker">
+                    SETTINGS
+                </span>
+
+
+                <h2>
+                    Settings
+                </h2>
+
+
+                <p class="modal-description">
+                    Manage your Keyboard Warrior account.
+                </p>
+
+
+
+                <div class="settings-list">
+
+
+                    <div class="settings-item">
+
+                        <div>
+
+                            <strong>
+                                Account Email
+                            </strong>
+
+                            <span id="settingsEmail">
+                                warrior@example.com
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="settings-item">
+
+                        <div>
+
+                            <strong>
+                                Account
+                            </strong>
+
+                            <span>
+                                Your account keeps your
+                                profile and game history.
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                </div>
+
+
+                <button
+                    id="settingsLogoutBtn"
+                    class="secondary-btn wide-btn"
+                    type="button"
+                >
+                    Logout
+                </button>
+
+
+                <button
+                    id="closeSettingsBtn"
+                    class="small-btn wide-btn"
+                    type="button"
+                >
+                    Back to Profile
+                </button>
+
+            </section>
+
+
+        </div>
+
+    </div>
 
 
 
@@ -1241,6 +1987,7 @@
                     type="password"
                     autocomplete="new-password"
                 >
+
 
 
                 <button

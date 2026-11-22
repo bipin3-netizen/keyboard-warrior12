@@ -1,40 +1,42 @@
-import os
-from datetime import datetime, timezone
 
-from dotenv import load_dotenv
+import os 
 from pymongo import MongoClient
+from dotenv import load_dotenv
 
 
-# Load .env file
+# Load variables from .env
 load_dotenv()
 
 
-MONGO_URI = os.getenv(
-    "MONGO_URI",
-    "mongodb://localhost:27017"
-)
+# Get MongoDB connection URL
+MONGODB_URL = os.getenv("MONGODB_URL")
 
 
-client = MongoClient(MONGO_URI)
+if not MONGODB_URL:
+    raise RuntimeError("MONGODB_URL is missing from .env")
 
+
+# Connect to MongoDB
+client = MongoClient(MONGODB_URL)
+
+
+# Select our database
 db = client["keyboard_warrior"]
 
-matches = db["matches"]
+
+# Collections we will use later
+users_collection = db["users"]
+matches_collection = db["matches"]
 
 
-async def save_match(room_code, winner_id, winner_wpm):
-
+# Test MongoDB connection
+def test_database():
     try:
+        client.admin.command("ping")
+        print("MongoDB connected successfully!")
+        return True
 
-        matches.insert_one({
-            "room_code": room_code,
-            "winner_id": winner_id,
-            "winner_wpm": winner_wpm,
-            "created_at": datetime.now(timezone.utc)
-        })
+    except Exception as e:
+        print("MongoDB connection failed:", e)
+        return False
 
-        print("Match saved to database.")
-
-    except Exception as error:
-
-        print("Database error:", error)

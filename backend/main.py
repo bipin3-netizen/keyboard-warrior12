@@ -1,7 +1,13 @@
-
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 import random
+import hashlib
+import secrets
+import hmac
+from datetime import datetime, timezone
+
+from database import users_collection
 
 
 app = FastAPI()
@@ -21,20 +27,454 @@ app.add_middleware(
 
 
 # ============================================================
+# SIGNUP DATA MODEL
+# ============================================================
+
+class SignupRequest(BaseModel):
+
+    username: str
+    email: str
+    password: str
+
+
+# ============================================================
+# LOGIN DATA MODEL
+# ============================================================
+
+class LoginRequest(BaseModel):
+
+    identity: str
+    password: str
+
+
+# ============================================================
+# PASSWORD HASHING
+# ============================================================
+
+def hash_password(password):
+
+    salt = secrets.token_bytes(16)
+
+    password_hash = hashlib.pbkdf2_hmac(
+        "sha256",
+        password.encode("utf-8"),
+        salt,
+        100000
+    )
+
+    return (
+        salt.hex()
+        + ":"
+        + password_hash.hex()
+    )
+
+
+# ============================================================
+# VERIFY PASSWORD
+# ============================================================
+
+def verify_password(password, stored_password):
+
+    try:
+
+        salt_hex, stored_hash_hex = (
+            stored_password.split(":")
+        )
+
+        salt = bytes.fromhex(salt_hex)
+
+        stored_hash = bytes.fromhex(
+            stored_hash_hex
+        )
+
+        password_hash = hashlib.pbkdf2_hmac(
+            "sha256",
+            password.encode("utf-8"),
+            salt,
+            100000
+        )
+
+        return hmac.compare_digest(
+            password_hash,
+            stored_hash
+        )
+
+    except Exception:
+
+        return False
+
+
+# ============================================================
+# SIGNUP API
+# ============================================================
+
+@app.post("/signup")
+async def signup(data: SignupRequest):
+
+    username = data.username.strip()
+
+    email = data.email.strip().lower()
+
+    password = data.password
+
+
+    if len(username) < 3:
+
+        return {
+            "success": False,
+            "message":
+            "Username must contain at least 3 characters."
+        }
+
+
+    if len(username) > 30:
+
+        return {
+            "success": False,
+            "message":
+            "Username must not exceed 30 characters."
+        }
+
+
+    if len(password) < 6:
+
+        return {
+            "success": False,
+            "message":
+            "Password must contain at least 6 characters."
+        }
+
+
+    if "@" not in email or "." not in email:
+
+        return {
+            "success": False,
+            "message":
+            "Please enter a valid email address."
+        }
+
+
+    existing_user = users_collection.find_one(
+        {
+            "$or": [
+                {"username": username},
+                {"email": email}
+            ]
+        }
+    )
+
+
+    if existing_user:
+
+        if existing_user.get("username") == username:
+
+            return {
+                "success": False,
+                "message":
+                "Username already exists."
+            }
+
+
+        if existing_user.get("email") == email:
+
+            return {
+                "success": False,
+                "message":
+                "Email is already registered."
+            }
+
+
+    password_hash = hash_password(
+        password
+    )
+
+
+    user = {
+
+        "username": username,
+
+        "email": email,
+
+        "password": password_hash,
+
+        "display_name": username,
+
+        "profile_image": "",
+
+        "created_at":
+        datetime.now(
+            timezone.utc
+        ),
+
+        "stats": {
+
+            "matches": 0,
+
+            "wins": 0,
+
+            "losses": 0,
+
+            "best_wpm": 0,
+
+            "average_accuracy": 0
+
+        }
+
+    }
+
+
+    users_collection.insert_one(
+        user
+    )
+
+
+    return {
+
+        "success": True,
+
+        "message":
+        "Account created successfully.",
+
+        "username":
+        username,
+
+        "display_name":
+        username
+
+    }
+
+
+# ============================================================
+# LOGIN API
+# ============================================================
+
+@app.post("/login")
+async def login(data: LoginRequest):
+
+    identity = data.identity.strip()
+
+    password = data.password
+
+
+    if not identity:
+
+        return {
+
+            "success": False,
+
+            "message":
+            "Please enter your username or email."
+
+        }
+
+
+    if not password:
+
+        return {
+
+            "success": False,
+
+            "message":
+            "Please enter your password."
+
+        }
+
+
+    user = users_collection.find_one(
+
+        {
+
+            "$or": [
+
+                {
+                    "username":
+                    identity
+                },
+
+                {
+                    "email":
+                    identity.lower()
+                }
+
+            ]
+
+        }
+
+    )
+
+
+    if not user:
+
+        return {
+
+            "success": False,
+
+            "message":
+            "Invalid username/email or password."
+
+        }
+
+
+    stored_password = user.get(
+        "password"
+    )
+
+
+    if not stored_password:
+
+        return {
+
+            "success": False,
+
+            "message":
+            "Invalid username/email or password."
+
+        }
+
+
+    password_correct = verify_password(
+
+        password,
+
+        stored_password
+
+    )
+
+
+    if not password_correct:
+
+        return {
+
+            "success": False,
+
+            "message":
+            "Invalid username/email or password."
+
+        }
+
+
+    username = user.get(
+        "username",
+        ""
+    )
+
+    display_name = user.get(
+        "display_name",
+        username
+    )
+
+    profile_image = user.get(
+        "profile_image",
+        ""
+    )
+
+    stats = user.get(
+
+        "stats",
+
+        {
+
+            "matches": 0,
+
+            "wins": 0,
+
+            "losses": 0,
+
+            "best_wpm": 0,
+
+            "average_wpm": 0,
+
+            "average_accuracy": 0
+
+        }
+
+    )
+
+
+    # Make old database users compatible
+    stats.setdefault(
+        "matches",
+        0
+    )
+
+    stats.setdefault(
+        "wins",
+        0
+    )
+
+    stats.setdefault(
+        "losses",
+        0
+    )
+
+    stats.setdefault(
+        "best_wpm",
+        0
+    )
+
+    stats.setdefault(
+        "average_wpm",
+        0
+    )
+
+    stats.setdefault(
+        "average_accuracy",
+        0
+    )
+
+
+    return {
+
+        "success": True,
+
+        "message":
+        "Login successful.",
+
+        "username":
+        username,
+
+        "display_name":
+        display_name,
+
+        "email":
+        user.get(
+            "email",
+            ""
+        ),
+
+        "profile_image":
+        profile_image,
+
+        "stats":
+        stats
+
+    }
+
+
+# ============================================================
 # TEXT DATA
 # ============================================================
 
 SENTENCES = [
 
     "The warrior moves quickly across the battlefield.",
+
     "Speed and accuracy are the keys to victory.",
+
     "A true keyboard warrior stays calm under pressure.",
+
     "Every keystroke brings you closer to victory.",
+
     "Practice makes your fingers faster and more accurate.",
+
     "A focused mind can overcome every difficult challenge.",
+
     "The strongest warriors never stop improving themselves.",
+
     "Typing quickly is useful only when your accuracy remains high.",
+
     "A good player stays focused even when the battle becomes difficult.",
+
     "Every mistake is another opportunity to learn and improve."
 
 ]
@@ -43,14 +483,23 @@ SENTENCES = [
 QUOTES = [
 
     "Success is not final and failure is not fatal.",
+
     "The secret of getting ahead is getting started.",
+
     "Great things are done by a series of small things brought together.",
+
     "It always seems impossible until it is done.",
+
     "Do not watch the clock. Do what it does. Keep going.",
+
     "The future depends on what you do today.",
+
     "Believe you can and you are already halfway there.",
+
     "Success comes to those who work hard and never give up.",
+
     "A journey of a thousand miles begins with a single step.",
+
     "The harder you work the luckier you become."
 
 ]
@@ -118,10 +567,6 @@ class RoomManager:
         await websocket.accept()
 
 
-        # ----------------------------------------------------
-        # CREATE ROOM
-        # ----------------------------------------------------
-
         if room_code not in self.rooms:
 
             self.rooms[room_code] = {
@@ -137,6 +582,17 @@ class RoomManager:
                 "mode": None,
 
                 "length": None,
+
+                # ==========================================
+                # BACKSPACE SETTING
+                # ==========================================
+                #
+                # True = Backspace enabled
+                # False = Backspace disabled
+                #
+                # Default is ON.
+                #
+                "backspace": True,
 
                 "creator": player_id,
 
@@ -220,10 +676,6 @@ class RoomManager:
             del room["players"][player_id]
 
 
-        # ----------------------------------------------------
-        # DELETE EMPTY ROOM
-        # ----------------------------------------------------
-
         if len(room["players"]) == 0:
 
             del self.rooms[room_code]
@@ -253,7 +705,9 @@ class RoomManager:
 
             try:
 
-                await websocket.send_json(message)
+                await websocket.send_json(
+                    message
+                )
 
             except Exception:
 
@@ -287,7 +741,9 @@ class RoomManager:
 
                 try:
 
-                    await websocket.send_json(message)
+                    await websocket.send_json(
+                        message
+                    )
 
                 except Exception:
 
@@ -341,10 +797,13 @@ def generate_words(count):
 
     words = []
 
+
     for _ in range(count):
 
         words.append(
-            random.choice(word_bank)
+            random.choice(
+                word_bank
+            )
         )
 
 
@@ -365,18 +824,15 @@ def generate_paragraph(word_count):
     words = source.split()
 
 
-    # --------------------------------------------------------
-    # If source is shorter than requested,
-    # keep adding random source paragraphs.
-    # --------------------------------------------------------
-
     while len(words) < word_count:
 
         extra = random.choice(
             PARAGRAPH_SOURCES
         )
 
-        words.extend(extra.split())
+        words.extend(
+            extra.split()
+        )
 
 
     return " ".join(
@@ -411,7 +867,12 @@ def generate_challenge(
             count = 25
 
 
-        allowed = [10, 25, 50, 100]
+        allowed = [
+            10,
+            25,
+            50,
+            100
+        ]
 
 
         if count not in allowed:
@@ -419,7 +880,9 @@ def generate_challenge(
             count = 25
 
 
-        return generate_words(count)
+        return generate_words(
+            count
+        )
 
 
     # --------------------------------------------------------
@@ -448,7 +911,12 @@ def generate_challenge(
             count = 50
 
 
-        allowed = [25, 50, 100, 200]
+        allowed = [
+            25,
+            50,
+            100,
+            200
+        ]
 
 
         if count not in allowed:
@@ -464,8 +932,19 @@ def generate_challenge(
     # --------------------------------------------------------
     # QUOTE
     # --------------------------------------------------------
+    #
+    # Accept BOTH:
+    #
+    # "quote"
+    # "quotes"
+    #
+    # This keeps frontend/backend compatible.
+    #
 
-    if mode == "quotes":
+    if mode in [
+        "quote",
+        "quotes"
+    ]:
 
         return random.choice(
             QUOTES
@@ -494,16 +973,23 @@ async def start_battle(
         return
 
 
-    room = manager.rooms[room_code]
+    room = manager.rooms[
+        room_code
+    ]
 
 
     mode = room["mode"]
 
     length = room["length"]
 
+    backspace = room.get(
+        "backspace",
+        True
+    )
+
 
     # --------------------------------------------------------
-    # Default settings
+    # DEFAULT SETTINGS
     # --------------------------------------------------------
 
     if mode is None:
@@ -520,9 +1006,13 @@ async def start_battle(
 
     room["length"] = length
 
+    room["backspace"] = bool(
+        backspace
+    )
+
 
     # --------------------------------------------------------
-    # Generate shared challenge
+    # GENERATE SHARED CHALLENGE
     # --------------------------------------------------------
 
     room["text"] = generate_challenge(
@@ -539,7 +1029,7 @@ async def start_battle(
 
 
     # --------------------------------------------------------
-    # Send same challenge to both players
+    # SEND SAME CHALLENGE TO BOTH PLAYERS
     # --------------------------------------------------------
 
     await manager.broadcast(
@@ -548,19 +1038,33 @@ async def start_battle(
 
         {
 
-            "type": "room_ready",
+            "type":
+            "room_ready",
 
-            "players": 2,
+            "players":
+            2,
 
-            "paragraph": room["text"],
+            "paragraph":
+            room["text"],
 
-            "text": room["text"],
+            "text":
+            room["text"],
 
-            "mode": room["mode"],
+            "mode":
+            room["mode"],
 
-            "length": room["length"],
+            "length":
+            room["length"],
 
-            "state": "battle"
+            # ==============================================
+            # SAME BACKSPACE SETTING FOR BOTH PLAYERS
+            # ==============================================
+
+            "backspace":
+            room["backspace"],
+
+            "state":
+            "battle"
 
         }
 
@@ -576,11 +1080,14 @@ async def home():
 
     return {
 
-        "game": "Keyboard Warrior",
+        "game":
+        "Keyboard Warrior",
 
-        "server": "online",
+        "server":
+        "online",
 
-        "websocket": "ready"
+        "websocket":
+        "ready"
 
     }
 
@@ -623,7 +1130,10 @@ async def websocket_endpoint(
 
     try:
 
-        room = manager.rooms[room_code]
+        room = manager.rooms[
+            room_code
+        ]
+
 
         players = len(
             room["players"]
@@ -636,13 +1146,20 @@ async def websocket_endpoint(
 
         await websocket.send_json({
 
-            "type": "room_joined",
+            "type":
+            "room_joined",
 
-            "room": room_code,
+            "room":
+            room_code,
 
-            "players": players,
+            "room_code":
+            room_code,
 
-            "player_id": player_id
+            "players":
+            players,
+
+            "player_id":
+            player_id
 
         })
 
@@ -655,7 +1172,8 @@ async def websocket_endpoint(
 
             await websocket.send_json({
 
-                "type": "waiting",
+                "type":
+                "waiting",
 
                 "message":
                 "Waiting for opponent..."
@@ -666,27 +1184,49 @@ async def websocket_endpoint(
         # ====================================================
         # SECOND PLAYER
         # ====================================================
+        #
+        # IMPORTANT:
+        #
+        # We DO NOT immediately start the battle here.
+        #
+        # The creator's room_config message determines:
+        #
+        # mode
+        # length
+        # backspace
+        #
+        # Once the creator sends the configuration,
+        # the battle starts.
+        #
+        # This prevents Player 2 from accidentally receiving
+        # a battle before the creator's settings arrive.
+        #
 
         elif players == 2:
 
-            # ------------------------------------------------
-            # If creator did not send settings yet,
-            # use default settings.
-            # ------------------------------------------------
+            if room["mode"] is not None:
 
-            if room["mode"] is None:
+                await start_battle(
+                    room_code
+                )
 
-                room["mode"] = "words"
+            else:
 
+                await manager.broadcast(
 
-            if room["length"] is None:
+                    room_code,
 
-                room["length"] = 25
+                    {
 
+                        "type":
+                        "waiting",
 
-            await start_battle(
-                room_code
-            )
+                        "message":
+                        "Opponent joined. Waiting for room settings..."
+
+                    }
+
+                )
 
 
         # ====================================================
@@ -708,15 +1248,16 @@ async def websocket_endpoint(
 
             if message_type == "room_config":
 
-                # ---------------------------------------------
-                # Only creator can choose settings
-                # ---------------------------------------------
+                # ------------------------------------------------
+                # ONLY CREATOR CAN CHOOSE SETTINGS
+                # ------------------------------------------------
 
                 if player_id != room["creator"]:
 
                     await websocket.send_json({
 
-                        "type": "error",
+                        "type":
+                        "error",
 
                         "message":
                         "Only the room creator can choose settings."
@@ -726,15 +1267,16 @@ async def websocket_endpoint(
                     continue
 
 
-                # ---------------------------------------------
-                # Do not change settings after battle starts
-                # ---------------------------------------------
+                # ------------------------------------------------
+                # SETTINGS CAN ONLY BE CHANGED IN WAITING STATE
+                # ------------------------------------------------
 
                 if room["state"] != "waiting":
 
                     await websocket.send_json({
 
-                        "type": "error",
+                        "type":
+                        "error",
 
                         "message":
                         "Room settings cannot be changed now."
@@ -744,11 +1286,19 @@ async def websocket_endpoint(
                     continue
 
 
+                # ------------------------------------------------
+                # MODE
+                # ------------------------------------------------
+
                 mode = data.get(
                     "mode",
                     "words"
                 )
 
+
+                # ------------------------------------------------
+                # LENGTH
+                # ------------------------------------------------
 
                 length = data.get(
                     "length",
@@ -756,11 +1306,32 @@ async def websocket_endpoint(
                 )
 
 
+                # ------------------------------------------------
+                # BACKSPACE
+                # ------------------------------------------------
+                #
+                # Default = ON
+                #
+                # bool() converts the received value into a
+                # safe True/False value.
+                #
+
+                backspace = data.get(
+                    "backspace",
+                    True
+                )
+
+
+                # ------------------------------------------------
+                # VALID MODES
+                # ------------------------------------------------
+
                 valid_modes = [
 
                     "words",
                     "sentence",
                     "paragraph",
+                    "quote",
                     "quotes"
 
                 ]
@@ -771,28 +1342,103 @@ async def websocket_endpoint(
                     mode = "words"
 
 
+                # ------------------------------------------------
+                # NORMALIZE QUOTE MODE
+                # ------------------------------------------------
+
+                if mode == "quotes":
+
+                    mode = "quote"
+
+
+                # ------------------------------------------------
+                # VALID LENGTH
+                # ------------------------------------------------
+
+                try:
+
+                    length = int(length)
+
+                except:
+
+                    length = 25
+
+
+                if mode == "words":
+
+                    allowed_lengths = [
+                        10,
+                        25,
+                        50,
+                        100
+                    ]
+
+                    if length not in allowed_lengths:
+
+                        length = 25
+
+
+                elif mode == "paragraph":
+
+                    allowed_lengths = [
+                        25,
+                        50,
+                        100,
+                        200
+                    ]
+
+                    if length not in allowed_lengths:
+
+                        length = 50
+
+
+                else:
+
+                    length = 25
+
+
+                # ------------------------------------------------
+                # SAVE ROOM SETTINGS
+                # ------------------------------------------------
+
                 room["mode"] = mode
 
                 room["length"] = length
 
+                room["backspace"] = bool(
+                    backspace
+                )
+
+
+                # ------------------------------------------------
+                # CONFIRM TO CREATOR
+                # ------------------------------------------------
 
                 await websocket.send_json({
 
-                    "type": "room_configured",
+                    "type":
+                    "room_configured",
 
-                    "mode": room["mode"],
+                    "mode":
+                    room["mode"],
 
-                    "length": room["length"]
+                    "length":
+                    room["length"],
+
+                    "backspace":
+                    room["backspace"]
 
                 })
 
 
-                # ---------------------------------------------
-                # If opponent is already waiting,
-                # start immediately.
-                # ---------------------------------------------
+                # ------------------------------------------------
+                # IF BOTH PLAYERS ARE CONNECTED,
+                # START THE BATTLE.
+                # ------------------------------------------------
 
-                if len(room["players"]) == 2:
+                if len(
+                    room["players"]
+                ) == 2:
 
                     await start_battle(
                         room_code
@@ -815,11 +1461,6 @@ async def websocket_endpoint(
                     ""
                 )
 
-
-                # ---------------------------------------------
-                # Prevent text from becoming longer than
-                # the challenge.
-                # ---------------------------------------------
 
                 if room["text"] is not None:
 
@@ -878,10 +1519,6 @@ async def websocket_endpoint(
 
             elif message_type == "finish":
 
-                # ---------------------------------------------
-                # Already finished
-                # ---------------------------------------------
-
                 if room["state"] == "finished":
 
                     await websocket.send_json({
@@ -897,18 +1534,10 @@ async def websocket_endpoint(
                     continue
 
 
-                # ---------------------------------------------
-                # Must be in battle
-                # ---------------------------------------------
-
                 if room["state"] != "battle":
 
                     continue
 
-
-                # ---------------------------------------------
-                # Winner
-                # ---------------------------------------------
 
                 room["state"] = "finished"
 
@@ -934,7 +1563,7 @@ async def websocket_endpoint(
 
 
                 # ---------------------------------------------
-                # Winner message
+                # WINNER
                 # ---------------------------------------------
 
                 await websocket.send_json({
@@ -958,7 +1587,7 @@ async def websocket_endpoint(
 
 
                 # ---------------------------------------------
-                # Loser message
+                # LOSER
                 # ---------------------------------------------
 
                 await manager.send_to_other_player(
@@ -995,10 +1624,6 @@ async def websocket_endpoint(
 
             elif message_type == "rematch":
 
-                # ---------------------------------------------
-                # Only finished matches can rematch
-                # ---------------------------------------------
-
                 if room["state"] != "finished":
 
                     await websocket.send_json({
@@ -1014,31 +1639,21 @@ async def websocket_endpoint(
                     continue
 
 
-                # ---------------------------------------------
-                # Add player vote
-                # ---------------------------------------------
-
                 room["rematch_votes"].add(
                     player_id
                 )
 
 
-                # ---------------------------------------------
-                # Both players accepted
-                # ---------------------------------------------
-
                 if len(
                     room["rematch_votes"]
                 ) == 2:
 
+                    # The same room settings are kept,
+                    # including Backspace ON/OFF.
                     await start_battle(
                         room_code
                     )
 
-
-                # ---------------------------------------------
-                # Waiting for other player
-                # ---------------------------------------------
 
                 else:
 
@@ -1085,10 +1700,6 @@ async def websocket_endpoint(
         )
 
 
-        # ----------------------------------------------------
-        # Notify remaining player
-        # ----------------------------------------------------
-
         if room_code in manager.rooms:
 
             await manager.send_to_other_player(
@@ -1108,4 +1719,3 @@ async def websocket_endpoint(
                 }
 
             )
-
