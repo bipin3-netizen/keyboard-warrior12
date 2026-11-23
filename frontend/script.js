@@ -1292,9 +1292,63 @@ function showPage(pageId) {
    TEXT SOURCES
 ===================================================== */
 
-const sentenceText =
-    "The quick brown fox jumps over the lazy dog.";
+/* =====================================================
+   TEXT SOURCES
+===================================================== */
 
+const sentenceTexts = [
+
+    "The quick brown fox jumps over the lazy dog.",
+
+    "A journey of a thousand miles begins with a single step.",
+
+    "The world is full of hidden paths waiting to be explored.",
+
+    "Small progress is better than standing still.",
+
+    "Every great achievement begins with a simple idea.",
+
+    "The wind carried the sound of distant waves across the shore.",
+
+    "Never stop learning because life never stops teaching.",
+
+    "A calm mind can overcome the greatest challenges.",
+
+    "The stars shine brightest in the darkest nights.",
+
+    "Courage is not the absence of fear but the ability to move forward.",
+
+    "Somewhere beyond the mountains lies a world of endless possibilities.",
+
+    "Hard work slowly turns dreams into reality.",
+
+    "The strongest warriors learn from every mistake.",
+
+    "Time moves forward whether we are ready or not.",
+
+    "Adventure begins where comfort ends.",
+
+    "Knowledge is a treasure that follows its owner everywhere.",
+
+    "A focused mind is more powerful than a thousand distractions.",
+
+    "The ocean hides countless secrets beneath its surface.",
+
+    "Patience and practice can master almost any skill.",
+
+    "Build something today that your future self will be proud of.",
+
+    "Even the longest night eventually gives way to morning.",
+
+    "The path may be difficult but every step has a purpose.",
+
+    "Creativity begins when you dare to think differently.",
+
+    "One good decision can change the direction of your life.",
+
+    "Explore the unknown and discover what you are capable of."
+
+];
 
 const quoteTexts = [
 
@@ -1547,38 +1601,20 @@ let currentResultType = "single";
    GENERATE SINGLE CHALLENGE
 ===================================================== */
 
+
 function generateSingleChallenge() {
-
     if (singleMode === "sentence") {
-
-        return sentenceText;
-
+        const randomIndex = Math.floor(Math.random() * sentenceTexts.length);
+        return sentenceTexts[randomIndex];
     }
-
-
     if (singleMode === "paragraph") {
-
-        return generateParagraph(
-            singleLength
-        );
-
+        return generateParagraph(singleLength);
     }
-
-
     if (singleMode === "quote") {
-
         return generateQuote();
-
     }
-
-
-    return generateWords(
-        singleLength
-    );
-
+    return generateWords(singleLength);
 }
-
-
 /* =====================================================
    CREATE SINGLE TEXT
 ===================================================== */
